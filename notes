@@ -29,3 +29,7 @@ https://github.com/aquasecurity/trivy/blob/main/contrib/Trivy.gitlab-ci.yml
 https://blog.octo.com/avec-trivy-cest-trivial-didentifier-les-vulnerabilites-de-vos-conteneurs/
 
 https://stanislas.blog/2019/03/quick-and-easy-ansible-linting-ci-pipeline/
+
+https://stackoverflow.com/questions/47790403/share-gitlab-ci-yml-between-projects
+
+https://dev.to/anhtm/a-comprehensive-guide-to-creating-your-own-gitlab-ci-template-library-5b3i
