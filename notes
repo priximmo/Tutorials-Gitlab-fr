@@ -21,3 +21,9 @@ https://kruyt.org/ansible-ci-with-gitlab/
 https://blog.callr.tech/gitlab-ansible-docker-ci-cd/
 
 https://www.bevuta.com/en/blog/continuous-delivery-with-gitlab-ci-and-ansible-part-2/
+
+https://docs.sonarqube.org/8.5/analysis/gitlab-cicd/
+
+https://github.com/aquasecurity/trivy/blob/main/contrib/Trivy.gitlab-ci.yml
+
+https://blog.octo.com/avec-trivy-cest-trivial-didentifier-les-vulnerabilites-de-vos-conteneurs/
