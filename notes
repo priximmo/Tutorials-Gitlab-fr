@@ -1,0 +1,23 @@
+external_url 'http://xavki.gitlab'
+gitlab_rails['gitlab_default_projects_features_container_registry'] = true
+registry_external_url 'http://registry.xavki.gitlab:5050'
+gitlab_rails['registry_enabled'] = true
+gitlab_rails['registry_host'] = "registry.xavki.gitlab"
+gitlab_rails['registry_port'] = "5000"
+gitlab_rails['registry_path'] = "/var/opt/gitlab/gitlab-rails/shared/registry"
+registry['enable'] = true
+ registry['log_level'] = "info"
+ registry['log_formatter'] = "text"
+registry_nginx['listen_port'] = 5050
+
+apt install ansible
+ssh-keyscan -t ecdsa xavki.gitlab >> ~/.ssh/known_hosts
+install ssh variable + profile gitlab
+
+https://gitlab.com/gitlab-examples/functions/-/blob/master/.gitlab-ci.yml#L22
+
+https://kruyt.org/ansible-ci-with-gitlab/
+
+https://blog.callr.tech/gitlab-ansible-docker-ci-cd/
+
+https://www.bevuta.com/en/blog/continuous-delivery-with-gitlab-ci-and-ansible-part-2/
