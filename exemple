@@ -1,0 +1,80 @@
+variables:
+  VARIABLES_FILE: ./myapp1/variables.txt  
+  POSTGRES_DB: postgres
+  POSTGRES_USER: runner
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_HOST_AUTH_METHOD: trust
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dstyle.color=always"
+
+cache:
+  paths:
+    - .m2
+
+stages:          # List of stages for jobs, and their order of execution
+  - test
+  - build_jar
+  - build_docker
+  - deploy_ansible
+
+Test:
+  stage: test
+  image: maven:3.5.0-jdk-8
+  services:
+    - postgres
+  script:
+    - cd myapp1/
+    - mvn ${MAVEN_OPTS} -B clean test
+    - MVN_VERSION=$(mvn --non-recursive help:evaluate -Dexpression=project.version | grep -v '\[.*')
+    - echo $MVN_VERSION
+    - echo "export MVN_VERSION=$MVN_VERSION" > variables.txt
+  artifacts:
+    paths:
+      - $VARIABLES_FILE
+  tags:
+  - docker
+
+Build_Jar:
+  stage: build_jar
+  image: maven:3.5.0-jdk-8
+  services:
+    - postgres
+  script:
+    - cd myapp1/
+    - 'mvn ${MAVEN_OPTS} -Drevision=x.y.z-SUFFIX -B clean install ' 
+  tags:
+  - docker
+  artifacts:
+    paths:
+      - myapp1/target/*.jar
+    expire_in: 7 days
+
+
+Build_docker:
+  stage: build_docker
+  script:
+    - source $VARIABLES_FILE
+    - cd myapp1/
+    - docker build -t $CI_REGISTRY/xavki/pipeline/test:v${MVN_VERSION} .
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push registry.xavki.gitlab:5050/xavki/pipeline/test:v${MVN_VERSION}
+  tags:
+  - shell
+
+.ssh: &ssh
+  - command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+
+
+Ansible_deploy:
+  stage: deploy_ansible
+  before_script: *ssh
+  script:
+    - /usr/bin/git clone git@xavki.gitlab:xavki/ansible_deploy.git
+    - cd ansible_deploy
+    - ansible-galaxy install -r requirements.yml -p roles
+    - ansible-playbook -i env/dev/hosts -u vagrant install-myapp1.yml
+
+
