@@ -27,3 +27,5 @@ https://docs.sonarqube.org/8.5/analysis/gitlab-cicd/
 https://github.com/aquasecurity/trivy/blob/main/contrib/Trivy.gitlab-ci.yml
 
 https://blog.octo.com/avec-trivy-cest-trivial-didentifier-les-vulnerabilites-de-vos-conteneurs/
+
+https://stanislas.blog/2019/03/quick-and-easy-ansible-linting-ci-pipeline/
