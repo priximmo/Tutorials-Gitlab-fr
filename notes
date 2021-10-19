@@ -14,6 +14,10 @@ apt install ansible
 ssh-keyscan -t ecdsa xavki.gitlab >> ~/.ssh/known_hosts
 install ssh variable + profile gitlab
 
+tutos:
+https://github.com/SocialGouv/tutoriel-gitlab
+https://gitlab.com/jnaour/tutoriel-gitlab/-/wikis/tutoriel-gitlab
+
 https://gitlab.com/gitlab-examples/functions/-/blob/master/.gitlab-ci.yml#L22
 
 https://kruyt.org/ansible-ci-with-gitlab/
