@@ -13,6 +13,13 @@ Créé par Dmitriy Zaporozhets et Valery Sizov
 
 Langages : Ruby & Go
 
+
+-------------------------------------------------------------------------------------------------------
+
+# GITLAB : INTRODUCTION
+
+<br>
+
 GitLab :
 
 		* dépôts Git
@@ -33,6 +40,12 @@ GitLab :
 
 => couvre une grande partie des facettes du devops
 
+-------------------------------------------------------------------------------------------------------
+
+# GITLAB : INTRODUCTION
+
+<br>
+
 Différents entités :
 
 		* GitLab Inc : compagnie, en bourse
@@ -43,6 +56,12 @@ Différents entités :
 										* premium : 19$/user/mois
 										* ultimate : 99$/user/mois
 										+ complément storage et ci/cd minutes
+
+-------------------------------------------------------------------------------------------------------
+
+# GITLAB : INTRODUCTION
+
+<br>
 
 GitLab intègre de nombreuses technologies :
 
@@ -61,3 +80,17 @@ GitLab intègre de nombreuses technologies :
 		* prometheus (interne)
 
 		* exporters
+
+-------------------------------------------------------------------------------------------------------
+
+# GITLAB : INTRODUCTION
+
+<br>
+
+Installation : 
+
+		* multiples OS
+
+		* conteneurisée ou non
+
+		* https://about.gitlab.com/install/
