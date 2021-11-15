@@ -7,7 +7,7 @@
 
 <br>
 
-git clone https://<token-name>:<token>@gitlaburl
+git clone (ssh|https)
 
 3 types d'accès :
 
@@ -15,6 +15,7 @@ git clone https://<token-name>:<token>@gitlaburl
 
 		* https : variables d'environnement
 				http://${GIT_USER}:${GIT_PASSWORD}@gitlaburl
+
 		* token (Personnal/Project)
 				https://<token-name>:<token>@gitlaburl
 
