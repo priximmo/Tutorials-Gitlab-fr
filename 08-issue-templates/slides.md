@@ -2,9 +2,23 @@
 %author: xavki
 
 
-# GITLAB : 08 - CURL & API
+# GITLAB : 08 - Issues Templates & Avancées
 
 
 <br>
 
-curl --request POST --header "PRIVATE-TOKEN:YaAvcfo-Psk3EgaeGjKn" "http://xavki.gitlab/api/v4/projects?name=foo"
+* Templates de ticket
+
+	* doc : https://docs.gitlab.com/ee/user/project/description_templates.html
+
+	* .gitlab/issue_templates/
+
+	* format markdown
+
+* add to do (issues, merge requests, epics, design)
+	* ou avec la référence @ en début de ligne (important)
+
+* move issue
+
+* delete issue
+
