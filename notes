@@ -1,39 +1,5 @@
-external_url 'http://xavki.gitlab'
-gitlab_rails['gitlab_default_projects_features_container_registry'] = true
-registry_external_url 'http://registry.xavki.gitlab:5050'
-gitlab_rails['registry_enabled'] = true
-gitlab_rails['registry_host'] = "registry.xavki.gitlab"
-gitlab_rails['registry_port'] = "5000"
-gitlab_rails['registry_path'] = "/var/opt/gitlab/gitlab-rails/shared/registry"
-registry['enable'] = true
- registry['log_level'] = "info"
- registry['log_formatter'] = "text"
-registry_nginx['listen_port'] = 5050
 
-apt install ansible
-ssh-keyscan -t ecdsa xavki.gitlab >> ~/.ssh/known_hosts
-install ssh variable + profile gitlab
 
-tutos:
-https://github.com/SocialGouv/tutoriel-gitlab
-https://gitlab.com/jnaour/tutoriel-gitlab/-/wikis/tutoriel-gitlab
+https://about.gitlab.com/blog/2021/02/18/improve-your-gitlab-productivity-with-these-10-tips/
 
-https://gitlab.com/gitlab-examples/functions/-/blob/master/.gitlab-ci.yml#L22
 
-https://kruyt.org/ansible-ci-with-gitlab/
-
-https://blog.callr.tech/gitlab-ansible-docker-ci-cd/
-
-https://www.bevuta.com/en/blog/continuous-delivery-with-gitlab-ci-and-ansible-part-2/
-
-https://docs.sonarqube.org/8.5/analysis/gitlab-cicd/
-
-https://github.com/aquasecurity/trivy/blob/main/contrib/Trivy.gitlab-ci.yml
-
-https://blog.octo.com/avec-trivy-cest-trivial-didentifier-les-vulnerabilites-de-vos-conteneurs/
-
-https://stanislas.blog/2019/03/quick-and-easy-ansible-linting-ci-pipeline/
-
-https://stackoverflow.com/questions/47790403/share-gitlab-ci-yml-between-projects
-
-https://dev.to/anhtm/a-comprehensive-guide-to-creating-your-own-gitlab-ci-template-library-5b3i

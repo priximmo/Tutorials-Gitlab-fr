@@ -2,7 +2,7 @@
 %author: xavki
 
 
-# GITLAB : 08 - Issues Templates & Labels
+# GITLAB : 09 - Labels
 
 
 <br>
