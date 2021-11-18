@@ -1,4 +1,4 @@
-markdownlint:
+test:
   stage: linting
   image: registry.gitlab.com/pipeline-components/markdownlint:latest
   script:
