@@ -1,7 +1,7 @@
 stages:
-  - test
+  - linting	
 
-test:
+Linting:
   stage: linting
   image: registry.gitlab.com/pipeline-components/markdownlint:latest
   script:
