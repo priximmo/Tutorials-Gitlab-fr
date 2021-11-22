@@ -1,5 +1,14 @@
+%title: GITLAB
+%author: xavki
+
+
+# GITLAB : 06 - Premier Git Clone
+
+
+<br>
+
 stages:
-  - linting	
+  - linting
 
 Linting:
   stage: linting

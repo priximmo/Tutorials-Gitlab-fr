@@ -2,19 +2,5 @@
 %author: xavki
 
 
-# GITLAB : 06 - Premier Git Clone
 
-
-<br>
-
-git clone https://<token-name>:<token>@gitlaburl
-
-3 types d'accès :
-
-		* ssh
-
-		* https : variables d'environnement
-				http://${GIT_USER}:${GIT_PASSWORD}@gitlaburl
-		* token (Personnal/Project)
-				https://<token-name>:<token>@gitlaburl
-
+https://about.gitlab.com/blog/2016/12/01/how-to-keep-your-fork-up-to-date-with-its-origin/

@@ -18,7 +18,7 @@ Wikis :
 
 		* spécifier le code (ex: python)
 
-		* modifier la side bar
+		* modifier la sidebar
 
 		* linker d'autres pages
 
