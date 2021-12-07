@@ -1,4 +1,6 @@
 
+https://docs.gitlab.com/runner/#runner-execution-flow
+
 
 https://about.gitlab.com/blog/2021/02/18/improve-your-gitlab-productivity-with-these-10-tips/
 
@@ -9,19 +11,17 @@ https://about.gitlab.com/handbook/tools-and-tips/
 
 
 
-From the theoretical point of view:
-
-    tags are symbolic names for a given revision. They always point to the same object (usually: to the same revision); they do not change.
-    branches are symbolic names for line of development. New commits are created on top of branch. The branch pointer naturally advances, pointing to newer and newer commits.
-
-From the technical point of view:
-
-    tags reside in refs/tags/ namespace, and can point to tag objects (annotated and optionally GPG signed tags) or directly to commit object (less used lightweight tag for local names), or in very rare cases even to tree object or blob object (e.g. GPG signature).
-    branches reside in refs/heads/ namespace, and can point only to commit objects. The HEAD pointer must refer to a branch (symbolic reference) or directly to a commit (detached HEAD or unnamed branch).
-    remote-tracking branches reside in refs/remotes/<remote>/ namespace, and follow ordinary branches in remote repository <remote>.
-
-
 repository check trigger
 
 
-https://github.com/darpan-jain/git-cheat-sheet/blob/master/Img/git-flow-commands-without-flow.png
+gitlab-runner register \
+    --non-interactive \
+    --run-untagged \
+    --docker-privileged \
+    --url https://git.example.com/ \
+    --registration-token XXXXX \
+    --executor docker \
+    --docker-image docker:latest \
+    --description gitlab-runner1-dev \
+    --tag-list "docker,privileged" \
+    --locked="false"
