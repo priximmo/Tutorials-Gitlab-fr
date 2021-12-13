@@ -2,137 +2,207 @@
 %author: xavki
 
 
-# GITLAB : 19 - Les Variables
+# GITLAB : 21 - Les Architectures de pipelines
 
 
 <br>
 
-* très importantes et utiles :
-		* secrets
-		* sha1 commit
-		* taguer des images
-		* partager entre les jobs
+Doc Gitlab : https://docs.gitlab.com/ee/ci/pipelines/pipeline_architectures.html
 
-* différents types de variables :
-		* les variables prédéfinies
-		* du fichier gitlab-ci : local vs global (job)
-		* du projet (settings > cicd)
-		* du groupe
-		* de l'instance
+<br>
 
---------------------------------------------------------------------------
+3 archis :
 
-# GITLAB : 19 - Les Variables
+		* Basic pipelines
+
+		* Direct Acyclic Graph (DAG) pipelines
+
+		* Parent/enfants pipelines : place à votre imagination...
 
 
+-----------------------------------------------------------------------------------------------------------------
 
-VARIABLES PREDEFINIES
+# GITLAB : 21 - Les Architectures de pipelines
 
 
 <br>
 
-* liste : https://docs.gitlab.com/ee/ci/variables/predefined_variables.html
+BASIC PIPELINE
 
 <br>
 
-* sans stage (juste des jobs)
+		Etapes		Stage1		Stage2		Stage3
+		Jobs
+						Job1		Job3			Job5
+						Job2		Job4			Job6
+
+-----------------------------------------------------------------------------------------------------------------
+
+# GITLAB : 21 - Les Architectures de pipelines
+
+
+<br>
 
 ```
-start-job: 
-  tags:
-    - shell     
+stages:
+  - stage1
+  - stage2
+job1:
+  stage: stage1
   script:
-    - echo "Start..."
-    - echo "$CI_JOB_ID"
-end-job:
-  tags:
-    - shell     
+    - echo "stage1 - job1"
+job2:
+  stage: stage1
   script:
-    - echo "ended !!"  
+    - echo "stage1 - job2"
+job3:
+  stage: stage2
+  script:
+    - echo "stage2 - job3"
+job4:
+  stage: stage2
+  script:
+    - echo "stage2 - job4"
+...
 ```
 
---------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------
 
-# GITLAB : 19 - Les Variables
+# GITLAB : 21 - Les Architectures de pipelines
 
-VARIABLES GILAB-CI
 
 <br>
 
-* variables globales
+DAG PIPELINE
 
 ```
-variables:
-  GLOBAL_VAR: "Hello"
-start-job: 
-  tags:
-    - shell     
-  script:
-    - echo "Start..."
-    - echo "$GLOBAL_VAR"
-    - echo "ended !!"
+		Stage1	>		Stage2	>		Stage3		
+
+		Job1		>		Job2		>		Job3
+
+		Job3		>		Job4		>		Job5
 ```
 
---------------------------------------------------------------------------
+Note : ordre des jobs mais dépendances respectées
 
-# GITLAB : 19 - Les Variables
+-----------------------------------------------------------------------------------------------------------------
+
+# GITLAB : 21 - Les Architectures de pipelines
+
 
 <br>
 
-* variables locales (à un job)
-
 ```
-variables:
-  GLOBAL_VAR: "Hello"
-start-job: 
-  tags:
-    - shell
-  variables:
-    LOCAL_VAR: "Hello Xavki !!" 
+stages:
+  - stage1
+  - stage2
+  - stage3
+job1:
+  stage: stage1
   script:
-    - echo "Start..."
-    - echo "$LOCAL_VAR"
-    - echo "ended !!"
+    - echo "stage1 - job1"
+    - exit 1
+job4:
+  stage: stage1
+  script:
+    - echo "stage1 - job4"
+job2:
+  stage: stage2
+  needs: [job1]
+  script:
+    - echo "stage2 - job2"
+job5:
+  stage: stage2
+  needs: [job4]
+  script:
+    - echo "stage2 - job5"
+...
 ```
 
---------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------
 
-# GITLAB : 19 - Les Variables
+# GITLAB : 21 - Les Architectures de pipelines
+
 
 <br>
 
-* local vs global
+PARENT/ENFANTS PIPELINE
 
-```
-variables:
-  VAR: "Hello"
-start-job: 
-  tags:
-    - shell
-  variables:
-    VAR: "Hello Xavki !!" 
-  script:
-    - echo "Start..."
-    - echo "$VAR"
-    - echo "ended !!"
-```
+* découper en différent gitlab-ci
+* gestion de déclenchement suivant des répertoires spécifiques
+* gestion de blocs
 
---------------------------------------------------------------------------
 
-# GITLAB : 19 - Les Variables
+Pipeline
+
+		caseA : stage1	stage2	stage3
+		caseB : stage21	stage22	stage23
+
+-----------------------------------------------------------------------------------------------------------------
+
+# GITLAB : 21 - Les Architectures de pipelines
+
 
 <br>
 
-GROUP & PROJET & FORM
+```
+stages:
+    - stage1
+    - stage2
+    - stage3
+job1:
+    stage: stage1
+    script:
+        - echo "caseA - job1"
+job2:
+    stage: stage2
+    needs: [job1]
+    script:
+        - echo "caseA - job2"
+job3:
+    stage: stage3
+    needs: [job2]
+    script:
+        - echo "caseA - job3"
+```
 
-* settings > CICD > Variables
+
+-----------------------------------------------------------------------------------------------------------------
+
+# GITLAB : 21 - Les Architectures de pipelines
+
+
+<br>
 
 ```
-start-job: 
-  tags:
-    - shell
-  script:
-    - echo "Start..."
-    - echo "$PIPELINE_VAR"
-    - echo "ended !!"
+stages:
+  - triggers
+
+caseAjob:
+  stage: triggers
+  trigger:
+    include: caseA/.gitlab-ci.yaml
+
+
+caseBjob:
+  stage: triggers
+  needs: [caseAjob]
+  trigger:
+    include: caseB/.gitlab-ci.yaml
 ```
+
+-----------------------------------------------------------------------------------------------------------------
+
+# GITLAB : 21 - Les Architectures de pipelines
+
+
+<br>
+
+* règles de trigger
+
+```
+  rules:
+    - changes:
+        - caseA/*
+```
+
