@@ -80,7 +80,7 @@ DAG PIPELINE
 
 		Job1		>		Job2		>		Job3
 
-		Job3		>		Job4		>		Job5
+		Job3		>		Job5		>		Job6
 ```
 
 Note : ordre des jobs mais dépendances respectées
