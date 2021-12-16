@@ -1,4 +1,6 @@
 
+https://www.bitslovers.com/gitlab-runner-maven/
+
 https://docs.gitlab.com/runner/#runner-execution-flow
 
 
@@ -25,3 +27,39 @@ gitlab-runner register \
     --description gitlab-runner1-dev \
     --tag-list "docker,privileged" \
     --locked="false"
+
+
+https://www.linkedin.com/pulse/gitlab-ci-10-tips-javamavendocker-essentiels-en-benoit-couetil/?originalSubdomain=fr
+
+
+
+stages:
+  - yamllint_testing
+
+yamllint_testing:
+  except:
+    refs:
+      - main
+  only:
+    - merge_requests
+  stage: yamllint_testing
+  script:
+    - docker run --rm -v ${PWD}:/tmp/ kubeval-tools:v2.6 yamllint -c /tmp/.yamllint.rules --no-warnings /tmp/;
+
+
+extends: default
+
+rules:
+  line-length:
+    max: 80
+    level: warning
+  new-line-at-end-of-file: disable
+  indentation:
+    spaces: consistent
+    indent-sequences: whatever
+  commas:
+    max-spaces-before: 0
+    min-spaces-after: 0
+    max-spaces-after: 1
+
+https://www.bitslovers.com/run-terraform-from-gitlab-ci/
