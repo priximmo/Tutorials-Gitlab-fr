@@ -1,5 +1,9 @@
 
+https://docs.gitlab.com/runner/executors/docker.html#create-a-network-for-each-job
+
 https://www.bitslovers.com/gitlab-runner-maven/
+
+https://about.gitlab.com/blog/2016/12/14/continuous-delivery-of-a-spring-boot-application-with-gitlab-ci-and-kubernetes/
 
 https://docs.gitlab.com/runner/#runner-execution-flow
 
