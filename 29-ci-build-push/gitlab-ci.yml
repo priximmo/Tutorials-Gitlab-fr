@@ -1,0 +1,26 @@
+
+stages:
+    - build
+
+build image:
+    stage: build
+    image: docker
+    services:
+        - name: docker:dind
+          alias: docker
+
+    variables:
+        DOCKER_BUILDKIT: "1"
+        DOCKER_DRIVER: overlay2
+        DOCKER_HOST: tcp://docker:2375
+        DOCKER_TLS_CERTDIR: ""
+
+    script:
+        - docker build  -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+                        -t $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+                        .
+        - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+        - docker push  $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+        - docker push  $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    tags:
+        - docker
