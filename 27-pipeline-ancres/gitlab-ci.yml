@@ -1,0 +1,37 @@
+image: debian:latest
+
+
+.ssh: &ssh
+    - 'command -v ssh-agent >/dev/null || ( apt update && apt install -y openssh-client )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan $SSH_TARGET >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - apt install -y ansible
+
+.ansible: &ansible
+    - echo "[all]" > inventory.ini
+    - echo "$SSH_TARGET ansible_become_pass=$SUDO_USER_PWD" >> inventory.ini
+    - ANSIBLE_BECOME_PASS=$SUDO_USER_PWD ansible-playbook -i inventory.ini -l $SSH_TARGET -u $SSH_USER play.yml
+
+job1:
+    variables:
+        SSH_TARGET: 192.168.12.43
+        SSH_USER: gitlab
+    before_script: *ssh
+    script: *ansible
+    tags:
+        - docker
+
+
+job2:
+    variables:
+        SSH_TARGET: 192.168.12.44
+        SSH_USER: gitlab2
+    before_script: *ssh
+    script: *ansible
+    tags:
+        - docker
+
