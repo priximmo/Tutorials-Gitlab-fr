@@ -1,0 +1,28 @@
+stages:
+    - build
+    - database
+build image:
+    stage: build
+    image: docker
+    script:
+        - echo "fiirst part"
+        - docker
+    tags:
+        - docker
+    except:
+        changes:
+            - ".gitlab-ci.*"
+db:
+    variables:
+        PG_USER: "user1"
+        PG_PASSWORD: "password"
+        PG_DB: "mydatabase"
+    stage: database
+    trigger:
+        project: xavki/ansible_pg
+        branch: main
+        strategy: depend
+    except:
+        changes:
+            - ".gitlab-ci.*"
+

@@ -1,0 +1,42 @@
+- name: install pip
+  become: yes
+  apt:
+    name:
+     - python3-pip
+     - postgresql-server-dev-all
+     - postgresql-{{ pg_version }}
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: install pip psycopg2
+  become: yes
+  pip:
+    name: psycopg2
+
+- name: "postgres | fix listen adress"
+  become: true
+  lineinfile:
+    dest: "/etc/postgresql/{{ pg_version }}/main/conf.d/listen.conf"
+    regexp: '^#listen_addresses='
+    line: "listen_addresses='0.0.0.0'"
+    state: present
+    create: yes
+  notify: 'restart postgresql'
+
+- name: create user
+  become_user: postgres
+  postgresql_user:
+    name: "{{ item.name }}"
+    password: "{{ item.password }}"
+    encrypted: true
+  with_items: "{{ pg_settings.users }}"
+  when: pg_settings.users is defined
+
+- name: create database
+  become_user: postgres
+  postgresql_db:
+    name: "{{ item.name }}"
+    owner: "{{ item.owner }}"
+  with_items: "{{ pg_settings.db_name }}"
+  when: pg_settings.db_name is defined

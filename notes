@@ -17,21 +17,6 @@ https://about.gitlab.com/handbook/tools-and-tips/
 
 
 
-repository check trigger
-
-
-gitlab-runner register \
-    --non-interactive \
-    --run-untagged \
-    --docker-privileged \
-    --url https://git.example.com/ \
-    --registration-token XXXXX \
-    --executor docker \
-    --docker-image docker:latest \
-    --description gitlab-runner1-dev \
-    --tag-list "docker,privileged" \
-    --locked="false"
-
 
 https://www.linkedin.com/pulse/gitlab-ci-10-tips-javamavendocker-essentiels-en-benoit-couetil/?originalSubdomain=fr
 
@@ -68,24 +53,4 @@ rules:
 
 https://www.bitslovers.com/run-terraform-from-gitlab-ci/
 
-
-
-image: debian:latest
-
-job1:
-    before_script:
-        - 'command -v ssh-agent >/dev/null || ( apt update && apt install -y openssh-client )' 
-        - eval $(ssh-agent -s)
-        - echo "$SSH_PRIVATE" | tr -d '\r' | ssh-add -
-        - mkdir -p ~/.ssh
-        - chmod 700 ~/.ssh
-        - ssh-keyscan $SSH_TARGET >> ~/.ssh/known_hosts
-        - chmod 644 ~/.ssh/known_hosts
-        - apt install -y ansible 
-
-    script:
-        - ansible -i "$SSH_TARGET," all -u $SSH_USER -m apt -a 'name=nginx"
-
-    tags:
-        - docker
 
