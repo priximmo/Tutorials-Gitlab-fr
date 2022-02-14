@@ -32,7 +32,7 @@ job1:
         changes:
             - ".gitlab-ci.*"
     only:
-        - triggers
+        - pipelines
     script:
         - echo $VAR1
         - echo $VAR2
