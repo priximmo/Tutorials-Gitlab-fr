@@ -1,0 +1,5 @@
+all:
+  children:
+    pg:
+      hosts:
+        target2:

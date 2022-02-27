@@ -1,0 +1,11 @@
+version: '3.0'
+services:
+  myapp1:
+    image: {{ install_app_image }}
+    container_name: myapp1
+    working_dir: /xavki/etc
+    command: java -jar /jar/myapp1-{{ install_app_version }}.jar --spring.config.location=file:/etc/application.properties
+    volumes:
+    - /xavki/etc/application.properties:/etc/application.properties
+    ports:
+    - 8080:8080

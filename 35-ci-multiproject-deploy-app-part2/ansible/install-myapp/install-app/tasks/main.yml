@@ -1,0 +1,55 @@
+- name: docker for python
+  apt:
+    name: python3-docker
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+
+
+- name: create main directories
+  file:
+    dest: /xavki/etc/
+    mode: 0775
+    recurse: yes
+    state: directory
+
+- name: insert config file
+  template:
+    src: application.properties.j2
+    dest: /xavki/etc/application.properties
+    mode: 0755
+
+- name: insert docker-compose file
+  template:
+    src: docker-compose.yml.j2
+    dest: /xavki/etc/docker-compose.yml
+    mode: 0755
+
+- name: debug
+  debug:
+    msg: "{{ install_app_registry_url }} - {{ install_app_registry_user }} - {{ install_app_registry_password }}"
+
+- name: login to registry
+  docker_login:
+    registry_url: "{{ install_app_registry_url }}"
+    username: "{{ install_app_registry_user }}"
+    password: "{{ install_app_registry_password }}"
+
+#- name: login to registry
+#  shell: "docker login {{ registry_url }} -u {{ registry_user }} -p {{ registry_password }}"
+
+- name: run docker-compose
+  shell: docker-compose -f /xavki/etc/docker-compose.yml down
+
+- name: run docker-compose
+  shell: docker-compose -f /xavki/etc/docker-compose.yml up -d
+
+- name: wait for instance
+  uri:
+    url: "http://127.0.0.1:8080/"
+    status_code: 404
+  register: result
+  until: result.status == 404
+  retries: 120
+  delay: 1
+

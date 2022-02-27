@@ -1,0 +1,8 @@
+all:
+  children:
+    myapp1:
+      hosts:
+        192.168.5.7:
+    pg:
+      hosts:
+        192.168.5.6:

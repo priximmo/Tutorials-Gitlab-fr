@@ -1,0 +1,28 @@
+---
+- name: create group
+  group:
+    name: "{{ docker_namespace_group }}"
+    system: true
+    state: present
+
+- name: create user
+  user:
+    name: "{{ docker_namespace_user }}"
+    group: "{{ docker_namespace_group }}"
+    system: true
+    shell: /bin/false
+    home: "/var/lib/{{ docker_namespace_user }}"
+    create_home: false
+    state: present
+
+- name: subuid definition
+  lineinfile:
+    dest: /etc/subuid
+    regexp: "^{{ docker_namespace_user }}"
+    line: "{{ docker_namespace_user }}:{{ docker_id_remap }}:65536"
+
+- name: subgid definition
+  lineinfile:
+    dest: /etc/subgid
+    regexp: "^{{ docker_namespace_group }}"
+    line: "{{ docker_namespace_group }}:{{ docker_id_remap }}:65536"

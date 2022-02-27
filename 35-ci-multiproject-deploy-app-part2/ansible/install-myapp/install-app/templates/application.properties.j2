@@ -1,0 +1,12 @@
+## Spring DATASOURCE (DataSourceAutoConfiguration & DataSourceProperties)
+spring.datasource.url={{ install_app_data_source_connection }}/{{ install_app_data_source_connection_database }}
+spring.datasource.username={{ install_app_data_source_connection_user }}
+spring.datasource.password={{ install_app_data_source_connection_password }}
+
+
+# The SQL dialect makes Hibernate generate better SQL for the chosen database
+spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.PostgreSQLDialect
+
+# Hibernate ddl auto (create, create-drop, validate, update)
+spring.jpa.hibernate.ddl-auto = update
+

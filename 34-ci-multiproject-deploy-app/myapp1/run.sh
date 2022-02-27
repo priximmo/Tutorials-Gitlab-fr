@@ -1,0 +1,1 @@
+docker run -d --name apitest --network generator_generator -v $(pwd)/src/main/resources/application.properties:/etc/application.properties -p 8080:8080 xavki:1.0 java -jar jar/myapp1-0.0.1-XXX.jar --spring.config.location=file:/etc/application.properties

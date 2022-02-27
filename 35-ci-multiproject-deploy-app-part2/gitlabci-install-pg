@@ -1,0 +1,28 @@
+image: debian:latest
+ansible_pg:
+    variables:
+        ENV: "dev"
+        ANSIBLE_INVENTORY: "env/$DEV/inventory.ini"
+    only:
+        - pipelines
+    before_script:
+        - 'command -v ssh-agent >/dev/null || ( apt update && apt install -y openssh-client )'
+        - eval $(ssh-agent -s)
+        - echo "$SSH_PRIVATE" | tr -d '\r' | ssh-add -
+        - mkdir -p ~/.ssh
+        - chmod 700 ~/.ssh
+        - ssh-keyscan $SSH_TARGET >> ~/.ssh/known_hosts
+        - chmod 644 ~/.ssh/known_hosts
+        - apt install -y ansible
+    script:
+        - mkdir -p /etc/ansible/
+        - echo "[defaults]" > /etc/ansible/ansible.cfg
+        - echo "allow_world_readable_tmpfiles=true" >> /etc/ansible/ansible.cfg
+        - echo "[pg]" > $ANSIBLE_INVENTORY
+        - echo "$SSH_TARGET ansible_become_pass=$SUDO_USER_PWD" >> $ANSIBLE_INVENTORY
+        - ANSIBLE_BECOME_PASS=$SUDO_USER_PWD 
+                    ansible-playbook -i $ANSIBLE_INVENTORY -l $SSH_TARGET -u $SSH_USER deploy-postgres.yml
+                    -e '{"pg_settings":{"users":[{"name":"'${PG_USER}'", "password":"'${PG_PASSWORD}'"}],"db_name":[{"name":"'${PG_DB}'", "owner":"'${PG_USER}'"}]}}'
+    tags:
+        - docker
+

@@ -1,0 +1,157 @@
+variables:
+  VARIABLES_FILE: ./variables.txt
+  POSTGRES_DB: postgres
+  POSTGRES_USER: runner
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_HOST_AUTH_METHOD: trust
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dstyle.color=always"
+  PG_USER: "user1"
+  PG_PASSWORD: "password"
+  PG_DB: "mydatabase"
+  PG_HOST: "192.168.12.44"
+  MVN_VERSION: "0.0.2" 
+cache:
+  paths:
+    - .m2
+
+stages:
+    - test
+    - build
+    - scan
+    - database
+    - deploy
+
+Test:
+  stage: test
+  image: maven:3.5.0-jdk-8
+  services:
+    - postgres
+  script:
+    - mvn ${MAVEN_OPTS} -B clean test
+    - MVN_VERSION=$(mvn --non-recursive help:evaluate -Dexpression=project.version | grep Building  | perl -nle 'm{(.* )?([0-9]+\.[0-9]+\.[0-9]+)};print $2')
+    - echo $MVN_VERSION
+    - echo "export MVN_VERSION=$MVN_VERSION" > ${VARIABLES_FILE}
+    - echo "MVN_VERSION=$MVN_VERSION" >> build.env
+  artifacts:
+    paths:
+      - $VARIABLES_FILE
+    reports:
+      dotenv: build.env
+  tags:
+    - docker
+
+Build_Jar:
+  needs:
+    - Test
+  stage: build
+  image: maven:3.5.0-jdk-8
+  services:
+    - postgres
+  script:
+    - 'mvn ${MAVEN_OPTS} -Drevision=x.y.z-SUFFIX -DskipTests -B clean install'
+  artifacts:
+    paths:
+      - target/*.jar
+    expire_in: 7 days
+  tags:
+  - docker
+
+Build_docker:
+  needs:
+    - Test
+    - Build_Jar
+  stage: build
+  image: docker
+  services:
+      - name: docker:dind
+        alias: docker
+  variables:
+      DOCKER_BUILDKIT: "1"
+      DOCKER_DRIVER: overlay2
+      DOCKER_HOST: tcp://docker:2375
+      DOCKER_TLS_CERTDIR: ""
+  script:
+      - source ${VARIABLES_FILE}
+      - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+      - docker build  --cache-from $CI_REGISTRY_IMAGE/myapp:latest
+                      -t $CI_REGISTRY_IMAGE/myapp:latest
+                      -t $CI_REGISTRY_IMAGE/myapp:v${MVN_VERSION}
+                      .
+      - docker push   $CI_REGISTRY_IMAGE/myapp:v${MVN_VERSION}
+      - docker push   $CI_REGISTRY_IMAGE/myapp:latest
+  tags:
+      - docker
+
+Scan:
+  stage: scan
+  needs:
+    - Test
+    - Build_Jar
+    - Build_docker
+  image:
+    name: aquasec/trivy
+    entrypoint: [""]
+  variables:
+    TRIVY_AUTH_URL: $CI_REGISTRY
+    TRIVY_USERNAME: $CI_REGISTRY_USER
+    TRIVY_PASSWORD: $CI_REGISTRY_PASSWORD
+  script:
+    - source ${VARIABLES_FILE}
+    - trivy --cache-dir .cache image
+      --exit-code 0
+      --severity HIGH,CRITICAL
+      --format table --output report.md
+      --vuln-type os
+      $CI_REGISTRY_IMAGE/myapp:v${MVN_VERSION}
+  artifacts:
+      name: "Scan Report ${CI_COMMIT_SHA}"
+      paths:
+        - report.md
+      expire_in: 7 days
+      #when: on_failure
+  cache:
+    paths:
+      - ".cache"
+  tags:
+    - docker
+
+DeployDb:
+  stage: deploy
+  variables:
+      PG_USER: "user1"
+      PG_PASSWORD: "password"
+      PG_DB: "mydatabase"
+  stage: database
+  trigger:
+      project: xavki/ansible_pg
+      branch: master
+      strategy: depend
+
+DeployApp:
+  needs:
+    - job: Test
+    - Build_Jar
+    - Build_docker
+    - Scan
+    - DeployDb
+  stage: deploy
+  variables:  
+    SSH_TARGET: "192.168.12.43"
+    SSH_PRIVATE: $SSH_PRIVATE
+    SUDO_USER_PWD: $SUDO_USER_PWD
+    SSH_USER: $SSH_USER
+    INSTALL_APP_IMAGE: $CI_REGISTRY_IMAGE/myapp:v$MVN_VERSION
+    INSTALL_APP_REGISTRY_URL: $CI_REGISTRY
+    INSTALL_APP_REGISTRY_USER: $CI_REGISTRY_USER
+    INSTALL_APP_REGISTRY_PASSWORD: $CI_REGISTRY_PASSWORD
+    INSTALL_APP_VERSION: $MVN_VERSION
+    APP_CONNEXION_DB_USER: $PG_USER
+    APP_CONNEXION_DB_PASSWORD: $PG_PASSWORD
+    APP_CONNEXION_DB_DATABASE: $PG_DB
+    APP_CONNEXION_DB_JDBC: "jdbc:postgresql://${PG_HOST}:5432"
+  trigger:
+      project: xavki/install-myapp
+      branch: master
+      strategy: depend
+
+

@@ -1,0 +1,6 @@
+- name: postgres prerequisite
+  hosts: pg
+  become: yes
+  roles:
+  - postgres
+

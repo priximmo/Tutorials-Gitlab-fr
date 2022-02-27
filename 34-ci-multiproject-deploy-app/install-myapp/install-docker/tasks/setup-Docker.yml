@@ -1,0 +1,79 @@
+---
+
+- name: Check if systemd
+  stat: path=/lib/systemd/systemd
+  register: is_systemd
+
+- name: Set docker_http_proxy_defined flag
+  set_fact:
+    docker_http_proxy_defined: "{{ docker_http_proxy is defined and docker_http_proxy is not none and docker_http_proxy != '' }}"
+
+- name: Set docker_https_proxy_defined flag
+  set_fact:
+    docker_https_proxy_defined: "{{ docker_https_proxy is defined and docker_https_proxy is not none and docker_https_proxy != '' }}"
+
+- name: Set docker_no_proxy_defined flag
+  set_fact:
+    docker_no_proxy_defined: "{{ docker_no_proxy is defined and docker_no_proxy is not none and docker_no_proxy != '' }}"
+
+- name: Ensure Docker systemd configuration directorie exists.
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: "{{ (daemon_json is not none or docker_http_proxy_defined or docker_https_proxy_defined or docker_no_proxy_defined) | ternary('directory', 'absent') }}"
+    owner: root
+    group: root
+    mode: 0755
+  when:
+    - is_systemd.stat.exists
+
+- name: Set docker HTTP(S)_PROXY if docker_http(s)_proxy defined (systemd) create http-proxy.conf
+  template:
+    src: http-proxy.conf.j2
+    dest: /etc/systemd/system/docker.service.d/http-proxy.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload systemd and restart docker
+  when:
+    - is_systemd.stat.exists
+    - docker_http_proxy_defined or docker_https_proxy_defined or docker_no_proxy_defined
+
+
+- name: Remove docker HTTP(S)_PROXY if docker_http(s)_proxy undefined (systemd)
+  file:
+    path: /etc/systemd/system/docker.service.d/proxy.conf
+    state: absent
+  notify: reload systemd and restart docker
+  when:
+    - is_systemd.stat.exists
+    - not docker_http_proxy_defined and not docker_https_proxy_defined and not docker_no_proxy_defined
+
+- name: Generate customized Docker environment
+  template:
+    src: dockerd_args.conf.j2
+    dest: /etc/systemd/system/docker.service.d/dockerd_args.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload systemd and restart docker
+
+- name: Ensure /etc/docker is present
+  file:
+    path: /etc/docker
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Configure Docker daemon options
+  copy:
+    content: "{{ docker_docker_conf | to_nice_json }}"
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart docker
+
+- name: Configure de namespace docker
+  import_tasks: docker-namespace.yml
+  when: docker_docker_conf['userns-remap'] is defined

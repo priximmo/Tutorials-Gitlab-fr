@@ -1,0 +1,4 @@
+install_app_data_source_connection_user: "myuser"
+install_app_data_source_connection_password: "myuserpassword"
+install_app_data_source_connection_database: "mydb"
+install_app_data_source_connection: "jdbc:postgresql://127.0.0.1:5432/"

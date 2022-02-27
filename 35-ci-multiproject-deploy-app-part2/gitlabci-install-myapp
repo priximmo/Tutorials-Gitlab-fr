@@ -1,0 +1,40 @@
+image: debian:latest
+ansible_myapp:
+    variables:
+        ENV: "dev"
+        ANSIBLE_DIR: "env/$ENV/"
+        ANSIBLE_INVENTORY: "$ANSIBLE_DIR/inventory.ini"
+    only:
+        - pipelines
+    before_script:
+        - 'command -v ssh-agent >/dev/null || ( apt update && apt install -y openssh-client )'
+        - eval $(ssh-agent -s)
+        - echo "$SSH_PRIVATE" | tr -d '\r' | ssh-add -
+        - mkdir -p ~/.ssh
+        - chmod 700 ~/.ssh
+        - ssh-keyscan $SSH_TARGET >> ~/.ssh/known_hosts
+        - chmod 644 ~/.ssh/known_hosts
+        - apt install -y ansible
+    script:
+        - echo $MVN_VERSION
+        - mkdir -p /etc/ansible/ $ANSIBLE_DIR
+        - echo "[defaults]" > /etc/ansible/ansible.cfg
+        - echo "allow_world_readable_tmpfiles=true" >> /etc/ansible/ansible.cfg
+        - echo "[myapp]" > $ANSIBLE_INVENTORY
+        - echo "$SSH_TARGET ansible_become_pass=$SUDO_USER_PWD" >> $ANSIBLE_INVENTORY
+        - ANSIBLE_BECOME_PASS=$SUDO_USER_PWD 
+                    ansible-playbook -i $ANSIBLE_INVENTORY -l $SSH_TARGET -u $SSH_USER 
+                    -e "
+                    install_app_version=${INSTALL_APP_VERSION}
+                    install_app_registry_url=${CI_REGISTRY}
+                    install_app_registry_user=${CI_REGISTRY_USER}
+                    install_app_registry_password=${CI_REGISTRY_PASSWORD}
+                    install_app_image=${INSTALL_APP_IMAGE}
+                    install_app_data_source_connection_user=${APP_CONNEXION_DB_USER}
+                    install_app_data_source_connection_password=${APP_CONNEXION_DB_PASSWORD}
+                    install_app_data_source_connection_database=${APP_CONNEXION_DB_DATABASE}
+                    install_app_data_source_connection=${APP_CONNEXION_DB_JDBC}
+                    "
+                    install-myapp1.yml
+    tags:
+        - docker
